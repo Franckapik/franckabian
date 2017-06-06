@@ -1,0 +1,24 @@
+{
+  "name": "garage",
+  "version": "0.0.0",
+  "description": "application du garage",
+  "main": "app.js",
+  "scripts": {
+    "test": "sudo node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Franckapik/garage.git"
+  },
+  "author": "franckapik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Franckapik/garage/issues"
+  },
+  "dependencies": {
+    "cron": "^1.2.1",
+    "express": "^4.15.3",
+    "influx": "^5.0.7",
+    "pigpio": "^0.5.1"
+  }
+}
