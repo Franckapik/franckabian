@@ -11,14 +11,16 @@ var db = new Influx.InfluxDB({
 var Gpio = require('pigpio').Gpio,
     trigger = new Gpio(17, { mode: Gpio.OUTPUT }),
     echo = new Gpio(27, { mode: Gpio.INPUT, alert: true });
-
-// The number of microseconds it takes sound to travel 1cm at 20 degrees celcius
-var MICROSECDONDS_PER_CM = 1e6 / 34321;
+MICROSECDONDS_PER_CM = 1e6 / 34321;
 
 trigger.digitalWrite(0); // Make sure trigger is low
 
+
 var getDistance = function() {
     var startTick;
+    pourcentage = null;
+
+    echo.enableAlert();
 
     echo.on('alert', function(level, tick) {
         var endTick,
@@ -26,26 +28,20 @@ var getDistance = function() {
 
         if (level == 1) {
             startTick = tick;
+
         } else {
+
             endTick = tick;
             diff = (endTick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
             distance = diff / 2 / MICROSECDONDS_PER_CM;
-            pourcentage = 100 - (Math.round(distance) * 100 / 2000);
+
 
             if (distance >= 0 && distance <= 2000) {
+                pourcentage = 100 - (Math.round(distance) * 100 / 2000);
                 console.log(distance);
-
-                db.writePoints([{
-                    "measurement": "meteo",
-
-                    "fields": {
-                        "niveauEau": pourcentage
-                    }
-                }]);
-
-
-
                 echo.disableAlert();
+
+
 
 
             } else {
@@ -54,11 +50,26 @@ var getDistance = function() {
             }
 
 
+
+
         }
     });
+
+    if (pourcentage !== null) {
+
+        console.log("Ecriture dans la base de donnée :" + pourcentage);
+
+        db.writePoints([{
+            "measurement": "meteo",
+
+            "fields": {
+                "niveauEau": pourcentage
+            }
+        }]);
+    } else { console.log("pourcentage null");}
+
 };
 
 
 
 exports.GetDistance = getDistance;
-

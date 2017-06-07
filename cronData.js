@@ -1,8 +1,6 @@
 var CronJob = require('cron').CronJob;
 var ultrasonic = require('./ultrasonic');
 
-
-
 var job = new CronJob('*/1 * * * *', function() {
   /*
    * Runs every weekday (Monday through Friday)
