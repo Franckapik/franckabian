@@ -1,5 +1,4 @@
-console.log("chargement du module ultrasonic");
-
+console.log("Module ultrasonic chargé");
 var Influx = require('influx');
 
 //Configuration de la base de donnes
@@ -12,7 +11,7 @@ var db = new Influx.InfluxDB({
 
 var Gpio = require('pigpio').Gpio,
     trigger = new Gpio(17, { mode: Gpio.OUTPUT }), //ecriture
-    echo = new Gpio(27, { mode: Gpio.INPUT, alert: true }); //lecture
+    echo = new Gpio(27, { mode: Gpio.INPUT, alert: false }); //lecture
 
 MICROSECDONDS_PER_CM = 1e6 / 34321;
 
@@ -41,7 +40,7 @@ echo.on('alert', function(level, tick) {
         }
     }
 
-    if ((pourcentage - currentCalc) >= 1) {
+    if (pourcentage !== currentCalc) {
         pourcentage = currentCalc;
         console.log("Ajout du pourcentage suivant dans la database : " + pourcentage);
         db.writePoints([{
@@ -51,13 +50,17 @@ echo.on('alert', function(level, tick) {
             }
         }]);
 
+        echo.disableAlert();
+
     } 
 });
 
 var getDistance = function() {
+
     console.log("Mesure du niveau d'eau en cours...");
+    echo.enableAlert();
     trigger.trigger(10, 1); //10µs de 5v (high) sur la borne trig du Hc-SR04. cela va envoyer 8 impulsions à 40Hz.
-    
+    /**echo.disableAlert();*/
 };
 
 exports.GetDistance = getDistance;

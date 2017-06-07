@@ -1,16 +1,10 @@
-var CronJob = require('cron').CronJob;
+const CronJob = require('cron').CronJob;
+const ultrasonic = require('./ultrasonic');
 
+var job = new CronJob('*/'+repetition+' * * * *', function() {
 
-var job = new CronJob('*/1 * * * *', function() {
-  /*
-   * Runs every weekday (Monday through Friday)
-   * at 11:30:00 AM. It does not run on Saturday
-   * or Sunday.
-   */
-
-
-
-  }, null, true
-);
+    console.log("***Processus CronJob automatique [" + repetition + " minute(s)]***");
+    ultrasonic.GetDistance();
+}, null, true);
 
 exports.job = job;

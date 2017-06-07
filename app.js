@@ -3,7 +3,7 @@ const http = require('http');
 const os = require('os');
 const path = require('path');
 
-const cronData = require('./cronData'); //cronData.js permets d'écrire la base de donnée en arrière plan.
+const cronData = require('./cronData')({  repetition: 1 }); //cronData.js permets d'écrire la base de donnée en arrière plan.
 
 const app = express();
 const ultrasonic = require('./ultrasonic');
