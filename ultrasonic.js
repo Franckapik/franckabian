@@ -26,25 +26,24 @@ echo.on('alert', function(level, tick) {
     var endTick, //variables definies.
         diff;
 
-    if (level == 1) { //si echo est niveau 
+    if (level == 1) { // quand echo est niveau haut (digital signal). La durée du signal high correspond à la distance mesurée.
         startTick = tick;
 
     } else {
         endTick = tick;
-        diff = (endTick >> 0) - (startTick >> 0); // Unsigned 32 bit arithmetic
-        distance = diff / 2 / MICROSECDONDS_PER_CM;
+        distance = ((endTick >> 0) - (startTick >> 0)) / 2 / MICROSECDONDS_PER_CM;
 
         if (distance >= 0 && distance <= 2000) {
             currentCalc = 100 - (Math.round(distance) * 100 / 2000);
             
         } else {
-            console.log("la valeur " + distance + "n'est pas acceptée !");
+            console.log("La valeur " + distance + " n'est pas acceptée !");
         }
     }
 
     if ((pourcentage - currentCalc) >= 1) {
         pourcentage = currentCalc;
-        console.log("Ecriture dans la base de donnée :" + pourcentage);
+        console.log("Ajout du pourcentage suivant dans la database : " + pourcentage);
         db.writePoints([{
             "measurement": "meteo",
             "fields": {
@@ -52,17 +51,13 @@ echo.on('alert', function(level, tick) {
             }
         }]);
 
-    } else {
-        
-    }
+    } 
 });
 
 var getDistance = function() {
-    
-    trigger.trigger(10, 1);
+    console.log("Mesure du niveau d'eau en cours...");
+    trigger.trigger(10, 1); //10µs de 5v (high) sur la borne trig du Hc-SR04. cela va envoyer 8 impulsions à 40Hz.
     
 };
-
-getDistance();
 
 exports.GetDistance = getDistance;

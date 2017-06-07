@@ -9,6 +9,7 @@ const app = express();
 const ultrasonic = require('./ultrasonic');
 
 //routes
+app.get ('/essai', ultrasonic.GetDistance);
 
 app.listen(8080);
 console.log("Le site du garage est disponible sur le port 8080");
