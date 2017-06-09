@@ -1,5 +1,6 @@
 const CronJob = require('cron').CronJob;
 const ultrasonic = require('./ultrasonic');
+var repetition = 30;
 
 var job = new CronJob('*/'+repetition+' * * * *', function() {
 

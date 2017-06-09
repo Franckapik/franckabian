@@ -46,7 +46,7 @@ echo.on('alert', function(level, tick) {
         db.writePoints([{
             "measurement": "meteo",
             "fields": {
-                "niveauEau": pourcentage
+                "niveauEau46": pourcentage
             }
         }]);
 
