@@ -3,20 +3,16 @@ const http = require('http');
 const os = require('os');
 const path = require('path');
 
-const cronData = require('./cronData'); //cronData.js permets d'écrire la base de donnée en arrière plan.
+/**const cronData = require('./cronData'); //cronData.js permets d'écrire la base de donnée en arrière plan.*/
 
 const app = express();
-const ultrasonic = require('./ultrasonic');
-const arrosage = require('./arrosage');
+const controller = require('./controller');
 
 //routes
-app.get ('/cuve', ultrasonic.GetDistance);
-app.get ('/arrosage', arrosage.Arrosage);
+/**app.get ('/cuve', ultrasonic.GetDistance);*/
+app.get ('/arrosage', controller.Arrosage);
+app.get ('/niveaucuve', controller.NiveauCuve);
 
 app.listen(8080);
 console.log("Le site du garage est disponible sur le port 8080");
 
-//configure app
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use('/public', express.static(__dirname + '/public'));

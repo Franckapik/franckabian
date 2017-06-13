@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
-
-counter = 0
 import time
+import sys, json
 
 GPIO.setmode(GPIO.BCM)
 
@@ -19,7 +18,7 @@ GPIO.setup(Echo, GPIO.IN)
 
 GPIO.output(Trig, False)
 
-for x in range(1):  # On prend la mesure 5 fois
+for x in range(5):  # On prend la mesure 5 fois
 
     time.sleep(1)  # On la prend toute les 1 seconde
 
@@ -38,4 +37,6 @@ for x in range(1):  # On prend la mesure 5 fois
 
     print distance
 
-    GPIO.cleanup()
+
+
+GPIO.cleanup()

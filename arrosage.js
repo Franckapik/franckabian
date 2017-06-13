@@ -1,21 +1,23 @@
 var gpio = require('wpi-gpio');
-var sleep = require('sleep');
+var Promise = require("bluebird");
 
-var arrosage = function() {
-    gpio.BCM_GPIO = true;
-    gpio.output(5, 1).then(function() {
-        console.log("*** Arrosage en cours de préparation ... ***");
-        gpio.write(5, 0).then(function() {
-            console.log("*** Arrosage activé ***");
-            sleep.sleep(10);
-            gpio.write(5, 1).then(function() {
-                console.log("*** Arrosage terminé ***");
-            });
+console.log('--start5--');
 
-        });
+Trig = 17 // Entree Trig du HC-SR04 branchee au GPIO 17 (wpi0)
+Echo = 27 // Sortie Echo du HC-SR04 branchee au GPIO 27 
 
-    });
 
-}
+/**gpio.BCM_GPIO = true;
 
-exports.Arrosage = arrosage;
+gpio.output(Trig, 0);
+gpio.input(Echo, 0); 
+*/
+
+gpio.read(Trig).then(function(val) {
+
+	if (val === 1) { console.log("Trig =" + val) ;}
+
+	if (val === 0) { console.log("Trig =" + val) ;}
+
+})
+

@@ -63,4 +63,6 @@ var getDistance = function() {
     /**echo.disableAlert();*/
 };
 
+getDistance();
+
 exports.GetDistance = getDistance;
