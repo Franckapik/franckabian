@@ -1,11 +1,21 @@
 const CronJob = require('cron').CronJob;
-const ultrasonic = require('./ultrasonic');
-var repetition = 30;
+var controller = require('./controller');
+var config = require ('./config');
 
-var job = new CronJob('*/'+repetition+' * * * *', function() {
+var jobniveau = new CronJob('0 */'+config.niveauHours+' * * *', function() {
 
-    console.log("***Processus CronJob automatique [" + repetition + " minute(s)]***");
-    ultrasonic.GetDistance();
+    console.log("***Processus CronJob automatique [" + config.niveauHours + " heure(s)]***");
+    controller.NiveauCuve();
+
 }, null, true);
 
-exports.job = job;
+var jobarrosage = new CronJob(config.timeCycleHours + ' ' + config.timeCycleMinutes + ' * * * *', function() {
+
+    console.log("***Processus Automatique [" + config.timeCycleHours + config.timeCycleMinutes + " ] ***");
+    controller.Arrosage();
+
+}, null, true);
+
+exports.jobNiveau = jobniveau;
+exports.jobArrosage = jobarrosage;
+

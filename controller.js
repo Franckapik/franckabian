@@ -4,64 +4,125 @@ var sleep = require('sleep');
 var Influx = require('influx');
 var Promise = require("bluebird");
 var PythonShell = require('python-shell');
+var math = require('mathjs');
+var config = require('./config');
+var moment = require('moment');
 
 //Configuration de la base de donnes
 var db = new Influx.InfluxDB({
-    host: '192.168.1.78',
-    database: 'mydb',
-    tags: 'jardin'
+    host: config.host,
+    database: config.database,
+    tags: config.tags
 });
 
 
-console.log("Connection avec RPI46-arrosage effectuée");
+console.log("Controller PI46 connecté");
 
+var flag = 'free';
 
 var arrosage = function(req, res) {
 
-    console.log("Fonction arrosage trouvée.");
-    res.send('OK');
+    if (flag == 'free') {
 
-    gpio.BCM_GPIO = true;
-    gpio.output(5, 1).then(function() {
-        console.log("*** Arrosage en cours de préparation ... ***");
-        gpio.sequence(5, [1, 0, 1 100]).then(function() {
-        // GPIO pin 5 has values written in series, with a 100ms delay between values 
-        console.log("arrosage terminé");
+        flag = 'blocking';
+        moment.locale('fr');
+
+        gpio.BCM_GPIO = true;
+
+        gpio.output(5, 1).then(function() {
+
+            console.log("*** Arrosage en cours de préparation ... ***");
+
+
+            gpio.write(5, 0).then(function() {
+                console.log("*** Arrosage activé ***");
+                db.writePoints([{
+                        "measurement": "arrosage",
+
+                        "fields": {
+                            "open": moment().format('MMMM Do, h:mm a')
+                    }
+                }]); 
+
+                sleep.sleep(config.tempsArrosage); 
+
+                gpio.write(5, 1).then(function() {
+                    console.log("*** Arrosage terminé ***");
+                    db.writePoints([{
+                            "measurement": "arrosage",
+
+                            "fields": {
+                                "close": moment().format('MMMM Do, h:mm a')
+                        }
+                    }]);
+
+                flag = 'free';
+
+            });
+
         });
 
     });
 
 }
-
-var niveauCuve = function(req, res) {
-
-    console.log("Mesure du niveau d'eau en cours...");
-
-    var options = {
-        mode: 'text',
-        pythonPath: '/usr/bin/python',
-        pythonOptions: ['-u'],
-        // make sure you use an absolute path for scriptPath
-    }
-
-    var pyshell = new PythonShell('niveauCuve.py');
-
-
-    pyshell.on('message', function(message) {
-
-        // received a message sent from the Python script (a simple "print" statement)
-        console.log(message);
-
-    });
-
-    
-    // end the input stream and allow the process to exit
-    pyshell.end(function(err) {
-        if (err) throw err;
-        console.log('finished');
-    });
+else {
+    console.log('Arrosage déjà en cours...');
+}
 
 }
+const niveauCuve = function(req, res) {
+        new Promise((resolve, reject) => {
+            console.log("[Mesure Niveau Eau]");
+
+            var options = {
+                mode: 'text',
+                pythonPath: '/usr/bin/python',
+                pythonOptions: ['-u'],
+                scriptPath: '/home/pi/garage/'
+
+            }
+
+            PythonShell
+                .run('niveauCuve.py', options, function(err, results) {
+                    if (err) reject(err);
+                    if (results) {
+                        var mediane = [math.median(results)];
+                        console.log('Impulsions :' + results)
+                        console.log('Médiane :' + mediane);
+                        res.send(mediane)
+                    } else {
+                        console.log('niveauCuve - Aucune donnée')
+                        res.send(0)
+                    }
+
+                });
+        })
+
+    }
+    /**
+    var niveauCuve = function(req, res) {
+
+        console.log("Mesure du niveau d'eau en cours...");
+
+        var options = {
+            mode: 'text',
+            pythonPath: '/usr/bin/python',
+            pythonOptions: ['-u'],
+            scriptPath: '/home/pi/garage/'
+            // make sure you use an absolute path for scriptPath
+        }
+
+        PythonShell.run('niveauCuve.py', options, function (err, results) {
+            
+            var mediane = [math.median(results)];
+            console.log('Niveau Cuve :' + results)
+            console.log('Médiane :' + mediane);
+            res.send(mediane);
+            if (err) throw err;
+    }); 
+
+
+    }*/
 
 
 exports.Arrosage = arrosage;

@@ -1,19 +1,19 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import RPi.GPIO as GPIO
 import time
 import sys, json
 
 GPIO.setmode(GPIO.BCM)
 
-print "+-----------------------------------------------------------+"
-print "| Mesure de distance par le capteur ultrasonore HC-SR04 |"
-print "+-----------------------------------------------------------+"
-
 Trig = 17  # Entree Trig du HC-SR04 branchee au GPIO 4
 Echo = 27  # Sortie Echo du HC-SR04 branchee au GPIO 5
 
+GPIO.setwarnings(False)
+
 GPIO.setup(Trig, GPIO.OUT)
 
-print "Le port Gpio Trig", Trig, "est mis en sortie (OUT)"
 GPIO.setup(Echo, GPIO.IN)
 
 GPIO.output(Trig, False)
@@ -38,5 +38,5 @@ for x in range(5):  # On prend la mesure 5 fois
     print distance
 
 
-
 GPIO.cleanup()
+
