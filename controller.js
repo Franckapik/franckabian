@@ -21,6 +21,7 @@ console.log("Controller PI46 connecté");
 var flag = 'free';
 
 var arrosage = function(req, res) {
+res.send('temps :' +  req.params.time);
 
     if (flag == 'free') {
 
@@ -29,45 +30,42 @@ var arrosage = function(req, res) {
 
         gpio.BCM_GPIO = true;
 
-        gpio.output(5, 1).then(function() {
-
+        Promise.try(() => {
+            return gpio.output(5, 1)
+        }).then(() => {
             console.log("*** Arrosage en cours de préparation ... ***");
 
+            return gpio.write(5, 0)
+        }).then(() => {
+            console.log("*** Arrosage activé ***");
 
-            gpio.write(5, 0).then(function() {
-                console.log("*** Arrosage activé ***");
-                db.writePoints([{
-                        "measurement": "arrosage",
+            db.writePoints([{
+                "measurement": "arrosage",
+                "fields": {
+                    "open": moment().format('MMMM Do, h:mm a')
+                }
+            }]);
 
-                        "fields": {
-                            "open": moment().format('MMMM Do, h:mm a')
-                    }
-                }]); 
+            return Promise.delay(req.params.time * 1000);
+        }).then(() => {
+            
+            return gpio.write(5, 1)
+        }).then(() => {
+            console.log("*** Arrosage terminé ***");
 
-                sleep.sleep(config.tempsArrosage); 
+            db.writePoints([{
+                "measurement": "arrosage",
+                "fields": {
+                    "close": moment().format('MMMM Do, h:mm a')
+                }
+            }]);
 
-                gpio.write(5, 1).then(function() {
-                    console.log("*** Arrosage terminé ***");
-                    db.writePoints([{
-                            "measurement": "arrosage",
+            flag = 'free';
+        })
 
-                            "fields": {
-                                "close": moment().format('MMMM Do, h:mm a')
-                        }
-                    }]);
-
-                flag = 'free';
-
-            });
-
-        });
-
-    });
-
-}
-else {
-    console.log('Arrosage déjà en cours...');
-}
+    } else {
+        console.log('Arrosage déjà en cours...');
+    }
 
 }
 const niveauCuve = function(req, res) {

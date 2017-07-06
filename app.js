@@ -8,7 +8,7 @@ const controller = require('./controller');
 
 //routes
 /**app.get ('/cuve', ultrasonic.GetDistance);*/
-app.get ('/arrosage', controller.Arrosage);
+app.get ('/arrosage/:time', controller.Arrosage);
 app.get ('/niveaucuve', controller.NiveauCuve);
 
 app.listen(8080);
